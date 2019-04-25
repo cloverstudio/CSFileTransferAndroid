@@ -51,12 +51,15 @@ public class SingleFile {
     }
 
     public Chunk getNext() {
+        if (uploadedChunks.size() == 0) {
+            return null;
+        }
         while (numberOfChunksSend < listOfChunks.size() && uploadedChunks.get(numberOfChunksSend)) {
             numberOfChunksSend++;
         }
 
         if ((numberOfChunksSend) >= listOfChunks.size()) {
-            return new Chunk("",-1, -1, -1, -1, null, fileID);
+            return null;
         }
 
         Chunk returnChunk = listOfChunks.get(numberOfChunksSend);
@@ -83,8 +86,10 @@ public class SingleFile {
     }
 
     public void resume() {
-        isPaused = false;
-        csUpload.resumeFile(this.fileID);
+        if (chunksUploaded < numberOfChunks) {
+            isPaused = false;
+            csUpload.resumeFile(this.fileID);
+        }
     }
 
     public void setOnProgressListener(OnProgressListener onProgressListener) {

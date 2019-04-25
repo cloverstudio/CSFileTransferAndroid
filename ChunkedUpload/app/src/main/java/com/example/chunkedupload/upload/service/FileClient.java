@@ -16,8 +16,9 @@ public interface FileClient {
     Call<ResponseBody> fileUpload(@Part("slice") RequestBody slice,
                                   @Part("fileName") RequestBody fileName,
                                   @Part("chunkNumber") RequestBody chunkNumber,
-                                  @Part("numberOfChunks") RequestBody numberOfChunks);
+                                  @Part("numberOfChunks") RequestBody numberOfChunks,
+                                  @Part("size") RequestBody size);
 
     @GET("upload")
-    Call<ResponseObject> getUploadedList(@Query("fileName") String fileName, @Query("numberOfChunks") long numberOfChunks);
+    Call<ResponseObject> getUploadedList(@Query("fileName") String fileName, @Query("numberOfChunks") long numberOfChunks, @Query("size") int size);
 }

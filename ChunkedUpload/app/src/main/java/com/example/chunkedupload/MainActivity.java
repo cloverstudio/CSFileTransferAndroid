@@ -15,6 +15,7 @@ import android.widget.Button;
 
 import com.example.chunkedupload.upload.CSUpload;
 import com.example.chunkedupload.upload.SingleFile;
+import com.example.chunkedupload.upload.listeners.OnServerListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,6 +57,16 @@ public class MainActivity extends AppCompatActivity {
                 intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
 
                 startActivityForResult(intent, 42);
+            }
+        });
+
+        csUpload.setOnServerListener(new OnServerListener() {
+            @Override
+            public void onFailedConnection() {
+                new AlertDialog.Builder(MainActivity.this)
+                        .setTitle("Can't Connect To Server!")
+                        .setMessage("")
+                        .show();
             }
         });
     }

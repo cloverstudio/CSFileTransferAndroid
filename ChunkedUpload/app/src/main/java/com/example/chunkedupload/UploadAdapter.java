@@ -37,7 +37,7 @@ public class UploadAdapter extends RecyclerView.Adapter<UploadAdapter.ViewHolder
         final ProgressBar progressBar = viewHolder.progressBar;
         TextView fileName = viewHolder.fileName;
         fileName.setText(singleFile.getFileName());
-        final TextView connectionFail = viewHolder.connectionFail;
+        //final TextView connectionFail = viewHolder.connectionFail;
 
 
         pause.setOnClickListener(new View.OnClickListener() {
@@ -51,7 +51,7 @@ public class UploadAdapter extends RecyclerView.Adapter<UploadAdapter.ViewHolder
         continueButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                connectionFail.setText("");
+                //connectionFail.setText("");
                 singleFile.resume();
             }
         });
@@ -88,7 +88,7 @@ public class UploadAdapter extends RecyclerView.Adapter<UploadAdapter.ViewHolder
             continueButton = itemView.findViewById(R.id.button_resume);
             progressBar = itemView.findViewById(R.id.progressBar1);
             fileName = itemView.findViewById(R.id.fileName);
-            connectionFail = itemView.findViewById(R.id.failConnection);
+            //connectionFail = itemView.findViewById(R.id.failConnection);
         }
     }
 

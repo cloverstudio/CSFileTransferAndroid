@@ -8,6 +8,7 @@ import android.provider.OpenableColumns;
 import android.util.Base64;
 import android.util.Log;
 
+import com.example.chunkedupload.upload.listeners.OnServerListener;
 import com.example.chunkedupload.upload.service.FileClient;
 import com.example.chunkedupload.upload.service.ResponseObject;
 
@@ -37,11 +38,18 @@ public class CSUpload {
     private static int numberOfConnections;
     private static int chunkSize;
     private static ContentResolver contentResolver;
-    private static Uri uri;
+    private static boolean isConnected;
+    private static int numberOFFiles = 0;
+    private static int fileToChooseFrom = 0;
+    private static OnServerListener serverListener;
+
+    public void setOnServerListener(OnServerListener listener) {
+        serverListener = listener;
+    }
 
     private CSUpload () {}
 
-    public static CSUpload getInstance( String url, int sizeOfChunks, int connections, ContentResolver resolver) {
+    public static CSUpload getInstance(String url, int sizeOfChunks, int connections, ContentResolver resolver) {
         if (firstInstance == null) {
             firstInstance = new CSUpload();
             numberOfConnections = connections;
@@ -49,6 +57,7 @@ public class CSUpload {
             files = new ArrayList<>();
             contentResolver = resolver;
             chunkSize = sizeOfChunks;
+            isConnected = true;
             for (int i = 0; i < senders.length; i++) {
                 senders[i] = new Sender(null, i + 1);
             }
@@ -67,15 +76,17 @@ public class CSUpload {
         return firstInstance;
     }
 
-    private static List<Boolean> getUploadedChunks(final String fileName, final long numberOfChunks, int fileID) {
+    private static List<Boolean> getUploadedChunks(final String fileName, final long numberOfChunks, int fileID, int chunkSize) {
 
-        Call<ResponseObject> call = client.getUploadedList(fileName, numberOfChunks);
+        Call<ResponseObject> call = client.getUploadedList(fileName, numberOfChunks, chunkSize);
         try {
             Response<ResponseObject> response = call.execute();
             List<Boolean> uploadedChunks = response.body().chunks;
 
             files.get(fileID).chunksUploaded = Integer.parseInt(response.body().length);
-            files.get(fileID).progressListener.onProgress(uploadedChunks.size(), files.get(fileID).chunksUploaded);
+            if (files.get(fileID).progressListener != null) {
+                files.get(fileID).progressListener.onProgress(uploadedChunks.size(), files.get(fileID).chunksUploaded);
+            }
 
             for (int i = 0; i < uploadedChunks.size(); i++) {
                 Log.e(String.valueOf(i + 1), String.valueOf(uploadedChunks.get(i)));
@@ -100,26 +111,34 @@ public class CSUpload {
         if ( fileSize % chunkSize != 0) {
             numberOfChunks++;
         }
-        SingleFile file = new SingleFile(fileName, uri, numberOfChunks, chunkSize, fileSize, contentResolver, files.size(), this);
+        SingleFile file = new SingleFile(fileName, uri, numberOfChunks, chunkSize, fileSize, contentResolver, numberOFFiles, this);
+        numberOFFiles++;
         new SendFile().execute(file);
         return file;
     }
 
     public static void startSenders() {
-        for (int i = 0; i < senders.length; i++) {
-            if (!senders[i].isSending) {
-                for (int j = 0; j <  files.size(); j++) {
-                    if (files.get(j).isPaused) {
+        for (int i = 0; i < Math.max(numberOFFiles, senders.length); i++) {
+            int currentSender = i % senders.length;
+            if (!senders[currentSender].isSending) {
+                for (int j = 0; j <  numberOFFiles; j++) {
+
+                    if (fileToChooseFrom >= files.size()) {
+                        fileToChooseFrom = 0;
+                    }
+
+                    if (files.get(fileToChooseFrom).isPaused) {
+                        fileToChooseFrom++;
                         continue;
                     }
-                    senders[i].chunk = files.get(j).getNext();
-                    if (senders[i].chunk.chunkNumber != -1) {
-                        senders[i].isSending = true;
-                        senders[i].sendChunk();
-                        Log.e("StartSenders", "sending" + senders[i].id);
+                    senders[currentSender].chunk = files.get(fileToChooseFrom).getNext();
+                    if (senders[currentSender].chunk != null) {
+                        senders[currentSender].isSending = true;
+                        senders[currentSender].sendChunk();
                         break;
                     }
                 }
+                fileToChooseFrom++;
             }
         }
     }
@@ -134,7 +153,6 @@ public class CSUpload {
     public void resumeFile(int fileID) {
         SingleFile file = files.get(fileID);
         file.numberOfChunksSend = 0;
-        files.remove(fileID);
         new SendFile().execute(file);
     }
 
@@ -144,9 +162,14 @@ public class CSUpload {
         protected Boolean doInBackground(SingleFile... singleFiles) {
 
             SingleFile file = singleFiles[0];
-            files.add(file);
 
-            List<Boolean> uploadedChunks = getUploadedChunks(file.getFileName(), file.getNumberOfChunks(), file.getFileID());
+            if (file.getFileID() == files.size()) {
+                files.add(file);
+            } else {
+                files.set(file.getFileID(), file);
+            }
+
+            List<Boolean> uploadedChunks = getUploadedChunks(file.getFileName(), file.getNumberOfChunks(), file.getFileID(), chunkSize);
 
             if (uploadedChunks == null) {
                 return false;
@@ -163,8 +186,6 @@ public class CSUpload {
             for (int i = 0; i < numberOfConnections; i++) {
                 senders[i] = new Sender(null, i + 1);
             }
-
-
         }
 
     }
@@ -177,14 +198,14 @@ public class CSUpload {
         private Call<ResponseBody> call;
         private boolean isSending = false;
 
-        public Sender(Chunk chunk, int id) {
+        private Sender(Chunk chunk, int id) {
             this.id = id;
             if (chunk != null) {
                 this.chunk = chunk;
             }
         }
 
-        public void abortCall() {
+        private void abortCall() {
             if (this.call != null) {
                 this.call.cancel();
                 retries += 6;
@@ -225,7 +246,9 @@ public class CSUpload {
             RequestBody name = RequestBody.create(MultipartBody.FORM, this.chunk.fileName);
             RequestBody chunkNumberPart = RequestBody.create(MultipartBody.FORM, String.valueOf(this.chunk.chunkNumber));
             final RequestBody numberOfChunks = RequestBody.create(MultipartBody.FORM, String.valueOf(this.chunk.numberOfChunks));
-            call = client.fileUpload(slice, name, chunkNumberPart, numberOfChunks);
+            RequestBody size = RequestBody.create(MultipartBody.FORM, String.valueOf(chunkSize));
+
+            call = client.fileUpload(slice, name, chunkNumberPart, numberOfChunks, size);
             call.enqueue(new Callback<ResponseBody>() {
                 @Override
                 public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
@@ -233,24 +256,26 @@ public class CSUpload {
 
                     SingleFile uploadedFile = files.get(chunk.parentID);
                     uploadedFile.chunksUploaded++;
-                    if (!uploadedFile.isPaused) {
+                    if (!uploadedFile.isPaused && uploadedFile.progressListener != null) {
                         uploadedFile.progressListener.onProgress(chunk.numberOfChunks, uploadedFile.chunksUploaded);
                     }
 
                     Log.e("sender " + id, "send " + chunk.fileName + chunk.chunkNumber);
-
                     startSenders();
                     retries = 1;
                 }
                 @Override
                 public void onFailure(Call<ResponseBody> call, Throwable t) {
                     isSending = false;
-                    Log.e("Error", "Sender " + id + " Could not send " + chunk.chunkNumber );
+                    //Log.e("Error", "Sender " + id + " Could not send " + chunk.chunkNumber );
                     if (retries < 5) {
                         retries++;
                         if (!files.get(chunk.parentID).isPaused) {
                             sendChunk();
                         }
+                    } else if (retries == 5 && isConnected) {
+                        isConnected = false;
+                        serverListener.onFailedConnection();
                     }
                 }
             });
