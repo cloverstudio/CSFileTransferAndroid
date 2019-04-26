@@ -84,6 +84,12 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     for (int i = 0; i < data.getClipData().getItemCount(); i++) {
                         Uri uri = data.getClipData().getItemAt(i).getUri();
+                        /*if (i == 1) {
+                            mAdapter.addToAdapter(csUpload.sendFile(uri, "http://54.153.78.182:80/"));
+                        } else {
+                            mAdapter.addToAdapter(csUpload.sendFile(uri));
+                        }*/
+
                         mAdapter.addToAdapter(csUpload.sendFile(uri));
                     }
                 }

@@ -12,7 +12,6 @@ import android.widget.TextView;
 
 import com.example.chunkedupload.upload.SingleFile;
 import com.example.chunkedupload.upload.listeners.OnProgressListener;
-import com.example.chunkedupload.upload.listeners.OnServerListener;
 
 import java.util.List;
 
@@ -37,13 +36,11 @@ public class UploadAdapter extends RecyclerView.Adapter<UploadAdapter.ViewHolder
         final ProgressBar progressBar = viewHolder.progressBar;
         TextView fileName = viewHolder.fileName;
         fileName.setText(singleFile.getFileName());
-        //final TextView connectionFail = viewHolder.connectionFail;
 
 
         pause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.e("pauseOnClick", "" + singleFile.getFileName());
                 singleFile.pause();
             }
         });
@@ -51,7 +48,6 @@ public class UploadAdapter extends RecyclerView.Adapter<UploadAdapter.ViewHolder
         continueButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //connectionFail.setText("");
                 singleFile.resume();
             }
         });
@@ -79,7 +75,6 @@ public class UploadAdapter extends RecyclerView.Adapter<UploadAdapter.ViewHolder
         public Button continueButton;
         public ProgressBar progressBar;
         public TextView fileName;
-        public TextView connectionFail;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -88,7 +83,6 @@ public class UploadAdapter extends RecyclerView.Adapter<UploadAdapter.ViewHolder
             continueButton = itemView.findViewById(R.id.button_resume);
             progressBar = itemView.findViewById(R.id.progressBar1);
             fileName = itemView.findViewById(R.id.fileName);
-            //connectionFail = itemView.findViewById(R.id.failConnection);
         }
     }
 
