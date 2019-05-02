@@ -37,6 +37,8 @@ public class UploadAdapter extends RecyclerView.Adapter<UploadAdapter.ViewHolder
         TextView fileName = viewHolder.fileName;
         fileName.setText(singleFile.getFileName());
 
+        progressBar.setMax((int)singleFile.getNumberOfChunks());
+        progressBar.setProgress(singleFile.chunksUploaded);
 
         pause.setOnClickListener(new View.OnClickListener() {
             @Override

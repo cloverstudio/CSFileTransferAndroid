@@ -86,7 +86,9 @@ public class CSUpload {
 
             files.get(fileID).chunksUploaded = Integer.parseInt(response.body().length);
 
-            files.get(fileID).progressListener.onProgress(uploadedChunks.size(), files.get(fileID).chunksUploaded);
+            if (files.get(fileID).progressListener != null) {
+                files.get(fileID).progressListener.onProgress(uploadedChunks.size(), files.get(fileID).chunksUploaded);
+            }
 
 
             for (int i = 0; i < uploadedChunks.size(); i++) {
