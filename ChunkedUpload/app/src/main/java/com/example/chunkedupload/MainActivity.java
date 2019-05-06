@@ -26,7 +26,7 @@ public class MainActivity extends AppCompatActivity {
     private UploadAdapter mAdapter;
     private LinearLayoutManager layoutManager;
     private List<SingleFile> uploads;
-    final String url = "http://192.168.1.3:3000/";
+    final String url = "http://192.168.1.3:3000/upload";
     private int sizeOfChunks = 1024 * 1024;
     private int numberOfConnections = 5;
     private CSUpload csUpload;

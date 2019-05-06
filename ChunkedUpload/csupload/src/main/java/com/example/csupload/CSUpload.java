@@ -19,6 +19,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,6 +45,9 @@ public class CSUpload {
     private static int numberOFFiles = 0;
     private static int fileToChooseFrom = 0;
     private static OnServerListener serverListener;
+    private static String baseUrl;
+    private static String endPoint;
+
 
     public void setOnServerListener(OnServerListener listener) {
         serverListener = listener;
@@ -62,8 +67,12 @@ public class CSUpload {
 
             initializeSenders();
 
+            int pos = url.lastIndexOf('/');
+            baseUrl = url.substring(0, pos + 1);
+            endPoint = url.substring(pos + 1);
+
             Retrofit.Builder builder = new Retrofit.Builder()
-                    .baseUrl(url)
+                    .baseUrl(baseUrl)
                     .addConverterFactory(GsonConverterFactory.create());
             Retrofit retrofit = builder.build();
             client = retrofit.create(FileClient.class);
@@ -80,7 +89,7 @@ public class CSUpload {
 
     private static List<Boolean> getUploadedChunks(final String fileName, final long numberOfChunks, int fileID, int chunkSize) {
 
-        Call<ResponseObject> call = client.getUploadedList(fileName, numberOfChunks, chunkSize);
+        Call<ResponseObject> call = client.getUploadedList(endPoint,fileName, numberOfChunks, chunkSize);
         try {
             Response<ResponseObject> response = call.execute();
             List<Boolean> uploadedChunks = response.body().chunks;
@@ -97,6 +106,9 @@ public class CSUpload {
             }
             return uploadedChunks;
         } catch (IOException e) {
+            Log.e("Error", e.getMessage());
+            return null;
+        } catch (NullPointerException e) {
             Log.e("Error", e.getMessage());
             return null;
         }
@@ -262,9 +274,9 @@ public class CSUpload {
             SingleFile currentFile = files.get(chunk.parentID);
 
             if (currentFile.getClient() != null) {
-                call = currentFile.getClient().fileUpload(slice, name, chunkNumberPart, numberOfChunks, size);
+                call = currentFile.getClient().fileUpload(endPoint, slice, name, chunkNumberPart, numberOfChunks, size);
             } else {
-                call = client.fileUpload(slice, name, chunkNumberPart, numberOfChunks, size);
+                call = client.fileUpload(endPoint, slice, name, chunkNumberPart, numberOfChunks, size);
             }
 
             call.enqueue(new Callback<ResponseBody>() {
