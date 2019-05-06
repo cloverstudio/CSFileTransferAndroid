@@ -57,6 +57,16 @@ public class CSUpload {
 
     public static CSUpload getInstance(String url, int sizeOfChunks, int connections, ContentResolver resolver) {
         if (firstInstance == null) {
+            if (connections > 5) {
+                connections = 5;
+            }
+            if (connections < 1) {
+                connections = 1;
+            }
+
+            if (chunkSize > (10 * 1024 *1024)) {
+                chunkSize = 10 * 1024 *1024;
+            }
             firstInstance = new CSUpload();
             numberOfConnections = connections;
             senders = new Sender[numberOfConnections];

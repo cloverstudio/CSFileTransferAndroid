@@ -55,7 +55,7 @@ public class SingleFile {
         }
 
         while (startByte < fileSize) {
-            listOfChunks.add(new Chunk(fileName, chunkNumber, numberOfChunks, startByte, chunkSize, uri, fileID));
+            listOfChunks.add(new Chunk(fileName, chunkNumber, numberOfChunks, startByte, chunkSize, uri, fileID, false));
             startByte += chunkSize;
             chunkNumber++;
         }
@@ -66,7 +66,7 @@ public class SingleFile {
         if (uploadedChunks.size() == 0) {
             return null;
         }
-        while (numberOfChunksSend < listOfChunks.size() && uploadedChunks.get(numberOfChunksSend)) {
+        while (numberOfChunksSend < listOfChunks.size() && uploadedChunks.get(numberOfChunksSend) && listOfChunks.get(numberOfChunksSend).isSending) {
             numberOfChunksSend++;
         }
 
@@ -75,6 +75,7 @@ public class SingleFile {
         }
 
         Chunk returnChunk = listOfChunks.get(numberOfChunksSend);
+        returnChunk.isSending = true;
         numberOfChunksSend++;
 
         return returnChunk;

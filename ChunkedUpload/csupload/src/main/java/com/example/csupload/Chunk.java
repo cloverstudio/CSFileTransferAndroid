@@ -10,8 +10,9 @@ public class Chunk {
     public int chunkSize;
     public Uri uri;
     public int parentID;
+    public boolean isSending;
 
-    public Chunk(String fileName, int chunkNumber, long numberOfChunks, long startByte, int chunkSize, Uri uri, int parentID) {
+    public Chunk(String fileName, int chunkNumber, long numberOfChunks, long startByte, int chunkSize, Uri uri, int parentID, boolean isSending) {
         this.fileName = fileName;
         this.chunkNumber = chunkNumber;
         this.numberOfChunks = numberOfChunks;
@@ -19,6 +20,7 @@ public class Chunk {
         this.chunkSize = chunkSize;
         this.uri = uri;
         this.parentID = parentID;
+        this.isSending = isSending;
     }
 
 }
