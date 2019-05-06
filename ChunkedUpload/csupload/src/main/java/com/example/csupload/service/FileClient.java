@@ -1,4 +1,4 @@
-package com.example.chunkedupload.upload.service;
+package com.example.csupload.service;
 
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;

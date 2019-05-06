@@ -1,10 +1,11 @@
-package com.example.chunkedupload.upload;
+package com.example.csupload;
 
 import android.content.ContentResolver;
 import android.net.Uri;
 
-import com.example.chunkedupload.upload.listeners.OnProgressListener;
-import com.example.chunkedupload.upload.service.FileClient;
+
+import com.example.csupload.listeners.OnProgressListener;
+import com.example.csupload.service.FileClient;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,4 +1,4 @@
-package com.example.chunkedupload.upload.service;
+package com.example.csupload.service;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;

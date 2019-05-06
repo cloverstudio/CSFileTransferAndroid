@@ -1,4 +1,4 @@
-package com.example.chunkedupload.upload;
+package com.example.csupload;
 
 import android.net.Uri;
 

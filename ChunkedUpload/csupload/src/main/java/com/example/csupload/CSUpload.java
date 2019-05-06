@@ -1,4 +1,5 @@
-package com.example.chunkedupload.upload;
+package com.example.csupload;
+
 
 import android.content.ContentResolver;
 import android.database.Cursor;
@@ -8,9 +9,9 @@ import android.provider.OpenableColumns;
 import android.util.Base64;
 import android.util.Log;
 
-import com.example.chunkedupload.upload.listeners.OnServerListener;
-import com.example.chunkedupload.upload.service.FileClient;
-import com.example.chunkedupload.upload.service.ResponseObject;
+import com.example.csupload.listeners.OnServerListener;
+import com.example.csupload.service.FileClient;
+import com.example.csupload.service.ResponseObject;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
@@ -121,11 +122,11 @@ public class CSUpload {
         return file;
     }
 
-    public SingleFile sendFile(Uri uri) {
+    public SingleFile uploadFile(Uri uri) {
         return createSingleFile(uri, null);
     }
 
-    public SingleFile sendFile(Uri uri, String url) {
+    public SingleFile uploadFile(Uri uri, String url) {
         return createSingleFile(uri, url);
     }
 

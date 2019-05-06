@@ -13,9 +13,9 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.Button;
 
-import com.example.chunkedupload.upload.CSUpload;
-import com.example.chunkedupload.upload.SingleFile;
-import com.example.chunkedupload.upload.listeners.OnServerListener;
+import com.example.csupload.CSUpload;
+import com.example.csupload.SingleFile;
+import com.example.csupload.listeners.OnServerListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +26,7 @@ public class MainActivity extends AppCompatActivity {
     private UploadAdapter mAdapter;
     private LinearLayoutManager layoutManager;
     private List<SingleFile> uploads;
-    final String url = "http://192.168.1.16:3000/";
+    final String url = "http://192.168.1.3:3000/";
     private int sizeOfChunks = 1024 * 1024;
     private int numberOfConnections = 5;
     private CSUpload csUpload;
@@ -35,7 +35,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         uploads = new ArrayList<>();
         recyclerView = findViewById(R.id.my_recycler_view);
         layoutManager = new LinearLayoutManager(getApplicationContext());
@@ -80,17 +79,17 @@ public class MainActivity extends AppCompatActivity {
             if (cm.getActiveNetworkInfo() != null) {
                 if (data.getClipData() == null) {
                     Uri uri = data.getData();
-                    mAdapter.addToAdapter(csUpload.sendFile(uri));
+                    mAdapter.addToAdapter(csUpload.uploadFile(uri));
                 } else {
                     for (int i = 0; i < data.getClipData().getItemCount(); i++) {
                         Uri uri = data.getClipData().getItemAt(i).getUri();
                         /*if (i == 1) {
-                            mAdapter.addToAdapter(csUpload.sendFile(uri, "http://54.153.78.182:80/"));
+                            mAdapter.addToAdapter(csUpload.uploadFile(uri, "http://54.153.78.182:80/"));
                         } else {
-                            mAdapter.addToAdapter(csUpload.sendFile(uri));
+                            mAdapter.addToAdapter(csUpload.uploadFile(uri));
                         }*/
 
-                        mAdapter.addToAdapter(csUpload.sendFile(uri));
+                        mAdapter.addToAdapter(csUpload.uploadFile(uri));
                     }
                 }
 

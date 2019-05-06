@@ -10,8 +10,9 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.example.chunkedupload.upload.SingleFile;
-import com.example.chunkedupload.upload.listeners.OnProgressListener;
+
+import com.example.csupload.SingleFile;
+import com.example.csupload.listeners.OnProgressListener;
 
 import java.util.List;
 

@@ -1,4 +1,5 @@
-package com.example.chunkedupload.upload.listeners;
+package com.example.csupload.listeners;
+
 
 public interface OnServerListener {
     public void onFailedConnection();
