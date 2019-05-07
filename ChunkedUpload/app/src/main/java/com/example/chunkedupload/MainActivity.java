@@ -26,7 +26,7 @@ public class MainActivity extends AppCompatActivity {
     private UploadAdapter mAdapter;
     private LinearLayoutManager layoutManager;
     private List<SingleFile> uploads;
-    final String url = "http://192.168.1.3:3000/upload";
+    final String url = "http://192.168.1.6:3000/upload";
     private int sizeOfChunks = 1024 * 1024;
     private int numberOfConnections = 5;
     private CSUpload csUpload;
@@ -74,32 +74,24 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == 42 && resultCode == Activity.RESULT_OK) {
 
-            ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 
-            if (cm.getActiveNetworkInfo() != null) {
-                if (data.getClipData() == null) {
-                    Uri uri = data.getData();
-                    mAdapter.addToAdapter(csUpload.uploadFile(uri));
-                } else {
-                    for (int i = 0; i < data.getClipData().getItemCount(); i++) {
-                        Uri uri = data.getClipData().getItemAt(i).getUri();
-                        /*if (i == 1) {
-                            mAdapter.addToAdapter(csUpload.uploadFile(uri, "http://54.153.78.182:80/"));
-                        } else {
-                            mAdapter.addToAdapter(csUpload.uploadFile(uri));
-                        }*/
-
-                        mAdapter.addToAdapter(csUpload.uploadFile(uri));
-                    }
-                }
-
-                mAdapter.notifyDataSetChanged();
+            if (data.getClipData() == null) {
+                Uri uri = data.getData();
+                mAdapter.addToAdapter(csUpload.uploadFile(uri));
             } else {
-                new AlertDialog.Builder(this)
-                        .setTitle("No Internet Connection!")
-                        .setMessage("Please Connect To Internet")
-                        .show();
+                for (int i = 0; i < data.getClipData().getItemCount(); i++) {
+                    Uri uri = data.getClipData().getItemAt(i).getUri();
+                    /*if (i == 1) {
+                        mAdapter.addToAdapter(csUpload.uploadFile(uri, "http://54.153.78.182:80/"));
+                    } else {
+                        mAdapter.addToAdapter(csUpload.uploadFile(uri));
+                    }*/
+
+                    mAdapter.addToAdapter(csUpload.uploadFile(uri));
+                }
             }
+            mAdapter.notifyDataSetChanged();
+
 
         }
     }

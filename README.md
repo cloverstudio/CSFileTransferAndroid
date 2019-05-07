@@ -1,24 +1,30 @@
 # CSFileTransferAndroid
-<pre>
-How to use:
 
-#Add dependencies:
-Add it in your root build.gradle at the end of repositories:
+## How to use:
+
+### Add dependencies:
+Add maven { url 'https://jitpack.io' } in your root build.gradle at the end of repositories:
+```
 allprojects {
 		repositories {
 			...
 			maven { url 'https://jitpack.io' }
 		}
 	}
+```
 Add the dependency:
+```
 implementation 'com.github.cloverstudio:CSFileTransferAndroid:master-SNAPSHOT'
+```
 
-#Add permissions in manifest:
+### Add permissions in manifest:
+```
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+```
 
-#configure CSUpload variable:
+### configure CSUpload variable:
+```Java
     private CSUpload csUpload;
 
     @Override
@@ -27,22 +33,28 @@ implementation 'com.github.cloverstudio:CSFileTransferAndroid:master-SNAPSHOT'
         setContentView(R.layout.activity_main);
 
         csUpload = CSUpload.getInstance(
-	"http://localhost:3000/upload", //server
-	1024 * 1024, // size of chunk in bytes, up to 10 * 1024 * 1024
-	5, // number of connections, between 1 and 5 
-	getContentResolver()); //content resolver
+	    "http://localhost:3000/upload", //server
+	    1024 * 1024, // size of chunk in bytes, up to 10 * 1024 * 1024
+	    5, // number of connections, between 1 and 5 
+	    getContentResolver()); //content resolver
 	)
         
     }
+```
 
-#upload a file:
+### upload a file:
+```Java
 SingleFile singleFile = CSUpload.upload(uri)	//upload function returns singleFile object, a file currently uploading, you can also add another argument, url that overrides the previously set url on CSUpload only for current file
+```
 
-#singleFile functions:
+### singleFile functions:
+```Java
 singleFile.pause()	//pauses upload of a file
 singleFile.continue()	//continues upload of a file
+```
 
-#progress listener:
+### progress listener:
+```Java
 singleFile.setOnProgressListener(new OnProgressListener() {
 	@Override
 	public void onProgress(long max, int uploaded) {
@@ -50,8 +62,9 @@ singleFile.setOnProgressListener(new OnProgressListener() {
                 progressBar.setProgress(uploaded);
             }
         });
-
-#error listener:
+```
+### error listener:
+```Java
 csUpload.setOnServerListener(new OnServerListener() {
             @Override
             public void onFailedConnection() {
@@ -61,3 +74,4 @@ csUpload.setOnServerListener(new OnServerListener() {
                         .show();
             }
         });
+```

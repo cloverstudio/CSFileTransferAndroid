@@ -19,8 +19,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -166,8 +164,11 @@ public class CSUpload {
                         fileToChooseFrom++;
                         continue;
                     }
-                    senders[currentSender].chunk = files.get(fileToChooseFrom).getNext();
-                    if (senders[currentSender].chunk != null) {
+
+                    Chunk current = files.get(fileToChooseFrom).getNext();
+
+                    if (current != null) {
+                        senders[currentSender].chunk = current;
                         senders[currentSender].isSending = true;
                         senders[currentSender].sendChunk();
                         break;
@@ -239,7 +240,7 @@ public class CSUpload {
         }
 
         private void abortCall() {
-            if (this.call != null) {
+            if (this.call != null && files.get(chunk.parentID).isPaused) {
                 this.call.cancel();
                 retries += 6;
             }
@@ -273,7 +274,6 @@ public class CSUpload {
         }
 
         private void sendChunk() {
-
             isSending = true;
             RequestBody slice = RequestBody.create(MultipartBody.FORM, getBase64(chunk));
             RequestBody name = RequestBody.create(MultipartBody.FORM, this.chunk.fileName);
@@ -318,6 +318,9 @@ public class CSUpload {
                             files.get(i).isPaused = true;
                         }
                         serverListener.onFailedConnection();
+                        chunk.isSending = false;
+                    } else {
+                        chunk.isSending = false;
                     }
                 }
             });
