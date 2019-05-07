@@ -23,7 +23,7 @@ implementation 'com.github.cloverstudio:CSFileTransferAndroid:master-SNAPSHOT'
     <uses-permission android:name="android.permission.INTERNET" />
 ```
 
-### configure CSUpload variable:
+### configure CSUpload object:
 ```Java
     private CSUpload csUpload;
 
@@ -44,7 +44,7 @@ implementation 'com.github.cloverstudio:CSFileTransferAndroid:master-SNAPSHOT'
 
 ### upload a file:
 ```Java
-SingleFile singleFile = CSUpload.upload(uri)	//upload function returns singleFile object, a file currently uploading, you can also add another argument, url that overrides the previously set url on CSUpload only for current file
+SingleFile singleFile = csUpload.upload(uri)	//upload function returns singleFile object, a file currently uploading, you can also add another argument, url that overrides the previously set url on CSUpload only for current file
 ```
 
 ### singleFile functions:
