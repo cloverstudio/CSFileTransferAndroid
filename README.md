@@ -14,7 +14,7 @@ allprojects {
 ```
 Add the dependency:
 ```
-implementation 'com.github.cloverstudio:CSFileTransferAndroid:master-SNAPSHOT'
+implementation 'com.github.cloverstudio:CSFileTransferAndroid:0.1.0'
 ```
 
 ### Add permissions in manifest:
