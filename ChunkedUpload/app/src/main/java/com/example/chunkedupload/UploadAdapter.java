@@ -1,12 +1,14 @@
 package com.example.chunkedupload;
 
 import android.content.Context;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -29,7 +31,7 @@ public class UploadAdapter extends RecyclerView.Adapter<UploadAdapter.ViewHolder
     }
 
     @Override
-    public void onBindViewHolder(final ViewHolder viewHolder, int i) {
+    public void onBindViewHolder(final ViewHolder viewHolder, final int i) {
         final SingleFile singleFile = uploads.get(i);
 
         Button pause = viewHolder.pause;
@@ -58,8 +60,13 @@ public class UploadAdapter extends RecyclerView.Adapter<UploadAdapter.ViewHolder
         singleFile.setOnProgressListener(new OnProgressListener() {
             @Override
             public void onProgress(long max, int uploaded) {
-                progressBar.setMax((int)max);
-                progressBar.setProgress(uploaded);
+                LinearLayoutManager linearLayout =(LinearLayoutManager)recyclerView.getLayoutManager();
+                int first = linearLayout.findFirstVisibleItemPosition();
+                int last = linearLayout.findLastVisibleItemPosition();
+                if (i >= first && i <= last) {
+                    progressBar.setMax((int)max);
+                    progressBar.setProgress(uploaded);
+                }
             }
         });
 
@@ -90,12 +97,14 @@ public class UploadAdapter extends RecyclerView.Adapter<UploadAdapter.ViewHolder
     }
 
     private List<SingleFile> uploads;
+    private RecyclerView recyclerView;
 
     public void addToAdapter(SingleFile file) {
         uploads.add(file);
     }
 
-    public UploadAdapter(List<SingleFile> uploads) {
+    public UploadAdapter(List<SingleFile> uploads, RecyclerView recyclerView) {
         this.uploads = uploads;
+        this.recyclerView = recyclerView;
     }
 }

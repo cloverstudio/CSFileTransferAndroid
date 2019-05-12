@@ -21,6 +21,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
@@ -30,6 +36,11 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+
+import static android.os.Process.THREAD_PRIORITY_BACKGROUND;
+import static android.os.Process.THREAD_PRIORITY_LOWEST;
+import static android.os.Process.setThreadPriority;
+import static java.lang.Process.*;
 
 public class CSUpload {
     private static CSUpload firstInstance = null;
@@ -45,6 +56,7 @@ public class CSUpload {
     private static OnServerListener serverListener;
     private static String baseUrl;
     private static String endPoint;
+    private static ExecutorService executor;
 
 
     public void setOnServerListener(OnServerListener listener) {
@@ -72,6 +84,10 @@ public class CSUpload {
             contentResolver = resolver;
             chunkSize = sizeOfChunks;
             isConnected = true;
+
+            int cores = Runtime.getRuntime().availableProcessors();
+            executor = new ThreadPoolExecutor(cores, cores,
+                    50, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
 
             initializeSenders();
 
@@ -137,9 +153,35 @@ public class CSUpload {
         }
         SingleFile file = new SingleFile(url, fileName, uri, numberOfChunks, chunkSize, fileSize, numberOFFiles, this);
         numberOFFiles++;
-        new SendFile().execute(file);
+
+
+        pushFileToExecutor(file);
 
         return file;
+    }
+
+    private boolean pushFileToExecutor(final SingleFile file) {
+        executor.submit(new Runnable() {
+            @Override
+            public void run() {
+                if (file.getFileID() == files.size()) {
+                    files.add(file);
+                } else {
+                    files.set(file.getFileID(), file);
+                }
+
+                List<Boolean> uploadedChunks = getUploadedChunks(file.getFileName(), file.getNumberOfChunks(), file.getFileID(), chunkSize);
+
+                if (uploadedChunks == null) {
+
+                } else {
+                    file.setUploadedChunks(uploadedChunks);
+                }
+
+                startSenders();
+            }
+        });
+        return true;
     }
 
     public SingleFile uploadFile(Uri uri) {
@@ -189,40 +231,9 @@ public class CSUpload {
     public void resumeFile(int fileID) {
         SingleFile file = files.get(fileID);
         file.numberOfChunksSend = 0;
-        new SendFile().execute(file);
+        pushFileToExecutor(file);
     }
 
-
-    private static class SendFile extends AsyncTask<SingleFile, Integer, Boolean> {
-
-        protected Boolean doInBackground(SingleFile... singleFiles) {
-
-            SingleFile file = singleFiles[0];
-
-            if (file.getFileID() == files.size()) {
-                files.add(file);
-            } else {
-                files.set(file.getFileID(), file);
-            }
-
-            List<Boolean> uploadedChunks = getUploadedChunks(file.getFileName(), file.getNumberOfChunks(), file.getFileID(), chunkSize);
-
-            if (uploadedChunks == null) {
-                return false;
-            } else {
-                file.setUploadedChunks(uploadedChunks);
-            }
-
-            startSenders();
-
-            return true;
-
-        }
-        protected void onPostExecute(Boolean flag) {
-            initializeSenders();
-        }
-
-    }
 
 
     private static class Sender {
@@ -261,6 +272,7 @@ public class CSUpload {
                 while (((b = in.read()) != -1) && counter < chunkSize) {
                     out.write(b);
                     counter++;
+
                 }
                 out.close();
                 in.close();
