@@ -74,8 +74,8 @@ public class CSUpload {
                 connections = 1;
             }
 
-            if (sizeOfChunks > (0.1 * 1024 *1024)) {
-                chunkSize = (int)(0.1 * 1024 *1024);
+            if (sizeOfChunks > (10 * 1024 *1024)) {
+                chunkSize = 10 * 1024 *1024;
             } else {
                 chunkSize = sizeOfChunks;
             }
@@ -98,6 +98,7 @@ public class CSUpload {
 
             Retrofit.Builder builder = new Retrofit.Builder()
                     .baseUrl(baseUrl)
+                    .callbackExecutor(Executors.newSingleThreadExecutor())
                     .addConverterFactory(GsonConverterFactory.create());
             Retrofit retrofit = builder.build();
             client = retrofit.create(FileClient.class);
