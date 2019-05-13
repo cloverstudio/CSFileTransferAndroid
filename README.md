@@ -34,7 +34,7 @@ implementation 'com.github.cloverstudio:CSFileTransferAndroid:v1.2'
 
         csUpload = CSUpload.getInstance(
 	    "http://localhost:3000/upload", //server
-	    1024 * 1024, // size of chunk in bytes, up to 0.1 * 1024 * 1024
+	    1024 * 1024, // size of chunk in bytes, up to 10 * 1024 * 1024
 	    5, // number of connections, between 1 and 5 
 	    getContentResolver()); //content resolver
 	)
