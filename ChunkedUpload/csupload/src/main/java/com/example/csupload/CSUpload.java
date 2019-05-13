@@ -74,15 +74,16 @@ public class CSUpload {
                 connections = 1;
             }
 
-            if (chunkSize > (0.1 * 1024 *1024)) {
+            if (sizeOfChunks > (0.1 * 1024 *1024)) {
                 chunkSize = (int)(0.1 * 1024 *1024);
+            } else {
+                chunkSize = sizeOfChunks;
             }
             firstInstance = new CSUpload();
             numberOfConnections = connections;
             senders = new Sender[numberOfConnections];
             files = new ArrayList<>();
             contentResolver = resolver;
-            chunkSize = sizeOfChunks;
             isConnected = true;
 
             int cores = Runtime.getRuntime().availableProcessors();
