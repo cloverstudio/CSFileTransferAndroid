@@ -74,8 +74,8 @@ public class CSUpload {
                 connections = 1;
             }
 
-            if (chunkSize > (10 * 1024 *1024)) {
-                chunkSize = 10 * 1024 *1024;
+            if (chunkSize > (0.1 * 1024 *1024)) {
+                chunkSize = (int)(0.1 * 1024 *1024);
             }
             firstInstance = new CSUpload();
             numberOfConnections = connections;
